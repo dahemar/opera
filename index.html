@@ -47,7 +47,18 @@
             font-size: 22px;
             z-index: 1000;
             text-align: center;
-            white-space: pre-line;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .loading-symbol {
+            font-size: 28px;
+        }
+
+        .loading-text {
+            font-size: 22px;
         }
 
 
@@ -123,7 +134,10 @@
     </style>
 </head>
 <body>
-    <div class="loading" id="loading">loading video...</div>
+    <div class="loading" id="loading">
+        <div class="loading-symbol" id="loading-symbol"></div>
+        <div class="loading-text" id="loading-text">loading video...</div>
+    </div>
     
     <div class="video-container">
         <video id="video-player" preload="auto" autoplay muted playsinline>
@@ -141,6 +155,8 @@
     <script>
         const video = document.getElementById('video-player');
         const loading = document.getElementById('loading');
+        const loadingSymbol = document.getElementById('loading-symbol');
+        const loadingText = document.getElementById('loading-text');
         const controls = document.getElementById('controls');
         let controlsTimeout;
         let isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
@@ -150,7 +166,7 @@
         // Función para mostrar mensaje inicial en móvil
         function showInitialMessage() {
             if (isMobile) {
-                loading.textContent = 'loading video... please rotate your screen';
+                loadingText.textContent = 'loading video... please rotate your screen';
             }
         }
 
