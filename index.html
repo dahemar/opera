@@ -367,15 +367,36 @@
                     loadingText.textContent = 'please rotate your screen';
                     adjustVideoSize(); // Ajustar rotación del vídeo
                 } else {
-                    // Landscape - activar sonido y quitar rotación del vídeo
+                    // Landscape - activar sonido y abrir pantalla completa
                     adjustVideoSize(); // Quitar rotación del vídeo
                     activateSound();
+                    
+                    // Abrir pantalla completa automáticamente
+                    setTimeout(() => {
+                        if (video.requestFullscreen) {
+                            video.requestFullscreen();
+                        } else if (video.webkitRequestFullscreen) {
+                            video.webkitRequestFullscreen();
+                        } else if (video.msRequestFullscreen) {
+                            video.msRequestFullscreen();
+                        }
+                    }, 500); // Pequeño delay para asegurar que el vídeo esté listo
                 }
             };
 
             window.addEventListener('orientationchange', handleOrientationChange);
             window.addEventListener('resize', handleOrientationChange);
         }
+
+        // Detectar cambios de pantalla completa
+        document.addEventListener('fullscreenchange', () => {
+            if (!document.fullscreenElement && isMobile) {
+                // Si se sale de pantalla completa y está en portrait, volver a rotar
+                if (window.innerHeight > window.innerWidth) {
+                    adjustVideoSize();
+                }
+            }
+        });
 
         // Intentar pantalla completa automáticamente en móvil
         if (isMobile) {
@@ -419,6 +440,12 @@
             if (isMobile) {
                 const container = document.querySelector('.video-container');
                 const video = document.getElementById('video-player');
+                
+                // Si está en pantalla completa, no hacer rotación
+                if (document.fullscreenElement) {
+                    container.style.transform = 'none';
+                    return;
+                }
                 
                 // Usar las dimensiones reales de la pantalla
                 let screenWidth = window.innerWidth;
