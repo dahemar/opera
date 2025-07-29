@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Curlicue - Video Fullscreen</title>
     <link rel="stylesheet" href="breathe.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Junicode:ital,wght@0,400;0,700;1,400;1,700&display=swap">
@@ -13,10 +13,31 @@
             box-sizing: border-box;
         }
 
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+        }
+
         body {
             background-color: #000;
             overflow: hidden;
             font-family: Arial, sans-serif;
+        }
+
+        /* Asegurar que el body ocupe toda la pantalla en móvil */
+        @media (max-width: 768px) {
+            html, body {
+                width: 100vw;
+                height: 100vh;
+                overflow: hidden;
+                margin: 0;
+                padding: 0;
+                position: fixed;
+                top: 0;
+                left: 0;
+            }
         }
 
         .video-container {
@@ -34,7 +55,7 @@
         #video-player {
             width: 100%;
             height: 100%;
-            object-fit: cover;
+            object-fit: fill;
             background-color: #000;
         }
 
@@ -95,6 +116,12 @@
 
         /* Mobile optimizations */
         @media (max-width: 768px) {
+            /* iOS Safari specific */
+            @supports (-webkit-touch-callout: none) {
+                html, body {
+                    height: -webkit-fill-available;
+                }
+            }
             .controls {
                 bottom: 10px;
                 gap: 5px;
@@ -108,22 +135,26 @@
             /* Forzar orientación horizontal en móvil */
             .video-container {
                 transform: rotate(90deg);
-                width: 100vh;
-                height: 100vw;
                 top: 0;
                 left: 0;
+                position: fixed;
+                margin: 0;
+                padding: 0;
+                display: block;
+                justify-content: initial;
+                align-items: initial;
             }
 
             #video-player {
-                width: 100vh;
-                height: 100vw;
+                object-fit: fill;
+                margin: 0;
+                padding: 0;
+                display: block;
             }
 
             /* Rotar texto en móvil */
-            .loading,
-            .rotate-message {
+            .loading {
                 transform: translate(-50%, -50%) rotate(90deg);
-                white-space: nowrap;
             }
         }
 
@@ -344,9 +375,33 @@
 
 
 
+        // Función para ajustar dimensiones del vídeo en móvil
+        function adjustVideoSize() {
+            if (isMobile) {
+                const container = document.querySelector('.video-container');
+                const video = document.getElementById('video-player');
+                
+                // Usar las dimensiones reales de la pantalla
+                const screenWidth = window.innerWidth;
+                const screenHeight = window.innerHeight;
+                
+                // En móvil, rotar y usar las dimensiones opuestas
+                container.style.width = screenHeight + 'px';
+                container.style.height = screenWidth + 'px';
+                video.style.width = screenHeight + 'px';
+                video.style.height = screenWidth + 'px';
+            }
+        }
+
         // Inicializar mensaje en móvil
         if (isMobile) {
             showInitialMessage();
+            adjustVideoSize();
+            
+            // Ajustar tamaño cuando cambie la orientación
+            window.addEventListener('orientationchange', adjustVideoSize);
+            window.addEventListener('resize', adjustVideoSize);
+            
             // Después de 3 segundos, cambiar mensaje si sigue en portrait
             setTimeout(() => {
                 if (window.innerHeight > window.innerWidth) {
