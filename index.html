@@ -134,7 +134,6 @@
 
             /* Forzar orientación horizontal en móvil */
             .video-container {
-                transform: rotate(90deg);
                 top: 0;
                 left: 0;
                 position: fixed;
@@ -385,11 +384,17 @@
                 const screenWidth = window.innerWidth;
                 const screenHeight = window.innerHeight;
                 
-                // En móvil, rotar y usar las dimensiones opuestas
-                container.style.width = screenHeight + 'px';
-                container.style.height = screenWidth + 'px';
-                video.style.width = screenHeight + 'px';
-                video.style.height = screenWidth + 'px';
+                // En móvil, hacer que el contenedor ocupe toda la pantalla
+                container.style.width = screenWidth + 'px';
+                container.style.height = screenHeight + 'px';
+                video.style.width = screenWidth + 'px';
+                video.style.height = screenHeight + 'px';
+                
+                // Aplicar la rotación sin offset
+                container.style.transform = 'rotate(90deg)';
+                
+                console.log('Screen dimensions:', screenWidth, 'x', screenHeight);
+                console.log('Container dimensions:', screenWidth, 'x', screenHeight);
             }
         }
 
