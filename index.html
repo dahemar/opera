@@ -233,8 +233,8 @@
         // Función para mostrar mensaje inicial en móvil
         function showInitialMessage() {
             if (isMobile) {
-                loadingSymbol.textContent = 'loading video...';
-                loadingText.textContent = 'please rotate your screen';
+                loadingSymbol.textContent = '𓏲';
+                loadingText.textContent = 'loading video...\nplease rotate your screen';
             }
         }
 
@@ -363,8 +363,8 @@
             const handleOrientationChange = () => {
                 if (window.innerHeight > window.innerWidth) {
                     // Portrait - mantener mensaje de carga y rotar vídeo
-                    loadingSymbol.textContent = 'loading video...';
-                    loadingText.textContent = 'please rotate your screen';
+                    loadingSymbol.textContent = '𓏲';
+                    loadingText.textContent = 'loading video...\nplease rotate your screen';
                     adjustVideoSize(); // Ajustar rotación del vídeo
                 } else {
                     // Landscape - activar sonido y mostrar mensaje para pantalla completa
@@ -402,8 +402,8 @@
                 // Si se sale de pantalla completa y está en portrait, volver a rotar
                 if (window.innerHeight > window.innerWidth) {
                     adjustVideoSize();
-                    loadingSymbol.textContent = 'loading video...';
-                    loadingText.textContent = 'please rotate your screen';
+                    loadingSymbol.textContent = '𓏲';
+                    loadingText.textContent = 'loading video...\nplease rotate your screen';
                 } else {
                     // Si está en landscape, mostrar controles
                     showControlsTemporarily();
