@@ -254,7 +254,7 @@
         // Timeout para mostrar mensaje si el video tarda en cargar
         setTimeout(() => {
             if (video.readyState < 2) { // HAVE_CURRENT_DATA
-                loading.textContent = 'video loading... click to play when ready';
+                loading.textContent = 'loading video... click to play when ready';
                 loading.style.cursor = 'pointer';
                 // Hacer que todo el body sea clickeable
                 document.body.style.cursor = 'pointer';
