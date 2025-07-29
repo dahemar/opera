@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Curlicue - Video Fullscreen</title>
+    <link rel="stylesheet" href="breathe.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Junicode:ital,wght@0,400;0,700;1,400;1,700&display=swap">
     <style>
         * {
             margin: 0;
@@ -42,9 +44,13 @@
             left: 50%;
             transform: translate(-50%, -50%);
             color: white;
-            font-size: 18px;
+            font-size: 22px;
             z-index: 1000;
+            text-align: center;
+            white-space: pre-line;
         }
+
+
 
         .controls {
             position: fixed;
@@ -87,6 +93,27 @@
                 padding: 8px 12px;
                 font-size: 12px;
             }
+
+            /* Forzar orientación horizontal en móvil */
+            .video-container {
+                transform: rotate(90deg);
+                width: 100vh;
+                height: 100vw;
+                top: 0;
+                left: 0;
+            }
+
+            #video-player {
+                width: 100vh;
+                height: 100vw;
+            }
+
+            /* Rotar texto en móvil */
+            .loading,
+            .rotate-message {
+                transform: translate(-50%, -50%) rotate(90deg);
+                white-space: nowrap;
+            }
         }
 
         /* Hide controls after 3 seconds */
@@ -99,7 +126,7 @@
     <div class="loading" id="loading">loading video...</div>
     
     <div class="video-container">
-        <video id="video-player" preload="auto">
+        <video id="video-player" preload="auto" autoplay muted playsinline>
             <source src="curlicue_web.mp4" type="video/mp4">
             your browser doesn't support video playback.
         </video>
@@ -116,44 +143,36 @@
         const loading = document.getElementById('loading');
         const controls = document.getElementById('controls');
         let controlsTimeout;
+        let isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
-        // Función para reproducir automáticamente
-        function autoPlay() {
-            // Intentar reproducir con sonido primero
+
+
+        // Función para mostrar mensaje inicial en móvil
+        function showInitialMessage() {
+            if (isMobile) {
+                loading.textContent = 'loading video... please rotate your screen';
+            }
+        }
+
+        // Función para activar sonido y ocultar loading
+        function activateSound() {
+            video.muted = false;
             video.play().then(() => {
                 loading.style.display = 'none';
                 showControlsTemporarily();
             }).catch(error => {
-                console.log('Error al reproducir con sonido:', error);
-                // Si falla, intentar reproducir silenciado
-                video.muted = true;
-                video.play().then(() => {
-                    loading.textContent = 'click to activate sound';
-                    loading.style.cursor = 'pointer';
-                    // Hacer que todo el body sea clickeable
-                    document.body.style.cursor = 'pointer';
-                    document.body.onclick = () => {
-                        video.muted = false;
-                        video.play();
-                        loading.style.display = 'none';
-                        document.body.style.cursor = 'default';
-                        document.body.onclick = null;
-                        showControlsTemporarily();
-                    };
-                }).catch(error2 => {
-                    console.log('Error al reproducir silenciado:', error2);
-                    loading.textContent = 'click to play';
-                    loading.style.cursor = 'pointer';
-                    // Hacer que todo el body sea clickeable
-                    document.body.style.cursor = 'pointer';
-                    document.body.onclick = () => {
-                        video.play();
-                        loading.style.display = 'none';
-                        document.body.style.cursor = 'default';
-                        document.body.onclick = null;
-                        showControlsTemporarily();
-                    };
-                });
+                console.log('Error al activar sonido:', error);
+                loading.textContent = '𓏲\nclick to hear the city';
+                loading.style.cursor = 'pointer';
+                document.body.style.cursor = 'pointer';
+                document.body.onclick = () => {
+                    video.muted = false;
+                    video.play();
+                    loading.style.display = 'none';
+                    document.body.style.cursor = 'default';
+                    document.body.onclick = null;
+                    showControlsTemporarily();
+                };
             });
         }
 
@@ -200,19 +219,37 @@
             }, 3000);
         }
 
-        // Event listeners
-        video.addEventListener('loadeddata', () => {
-            console.log('Video cargado, intentando reproducir...');
-            autoPlay();
-        });
+        // Reproducción inicial simplificada
+        window.onload = () => {
+            video.muted = true;
+            video.play().then(() => {
+                console.log('Video reproduciéndose silenciado');
+                // En móvil portrait, mostrar mensaje para activar sonido
+                if (isMobile && window.innerHeight > window.innerWidth) {
+                    loading.textContent = '𓏲\nclick to hear the city';
+                    loading.style.cursor = 'pointer';
+                    document.body.style.cursor = 'pointer';
+                    document.body.onclick = activateSound;
+                } else {
+                    // En desktop o móvil landscape, activar sonido automáticamente
+                    activateSound();
+                }
+            }).catch(e => {
+                console.log('Error al reproducir automáticamente:', e);
+                loading.textContent = 'click to play';
+                loading.style.cursor = 'pointer';
+                document.body.style.cursor = 'pointer';
+                document.body.onclick = () => {
+                    video.play();
+                    loading.style.display = 'none';
+                    document.body.style.cursor = 'default';
+                    document.body.onclick = null;
+                    showControlsTemporarily();
+                };
+            });
+        };
 
-        video.addEventListener('canplay', () => {
-            console.log('Video puede reproducirse');
-        });
 
-        video.addEventListener('loadstart', () => {
-            console.log('Iniciando carga del video...');
-        });
 
         video.addEventListener('ended', () => {
             // Repetir automáticamente
@@ -234,8 +271,24 @@
             showControlsTemporarily();
         });
 
+        // Detectar cambios de orientación en móvil
+        if (isMobile) {
+            const handleOrientationChange = () => {
+                if (window.innerHeight > window.innerWidth) {
+                    // Portrait - mostrar mensaje de rotación
+                    loading.textContent = 'please rotate your screen';
+                } else {
+                    // Landscape - activar sonido
+                    activateSound();
+                }
+            };
+
+            window.addEventListener('orientationchange', handleOrientationChange);
+            window.addEventListener('resize', handleOrientationChange);
+        }
+
         // Intentar pantalla completa automáticamente en móvil
-        if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+        if (isMobile) {
             document.addEventListener('touchstart', () => {
                 if (video.requestFullscreen) {
                     video.requestFullscreen();
@@ -251,12 +304,11 @@
             console.error('Error loading video:', video.error);
         });
 
-        // Timeout para mostrar mensaje si el video tarda en cargar
+        // Timeout para mostrar mensaje si el video tarda en cargar (solo en desktop)
         setTimeout(() => {
-            if (video.readyState < 2) { // HAVE_CURRENT_DATA
+            if (video.readyState < 2 && !isMobile) { // HAVE_CURRENT_DATA
                 loading.textContent = 'loading video... click to play when ready';
                 loading.style.cursor = 'pointer';
-                // Hacer que todo el body sea clickeable
                 document.body.style.cursor = 'pointer';
                 document.body.onclick = () => {
                     if (video.readyState >= 2) {
@@ -268,9 +320,18 @@
             }
         }, 5000);
 
-        // Optimización para iOS
-        video.setAttribute('playsinline', '');
-        video.setAttribute('webkit-playsinline', '');
+
+
+        // Inicializar mensaje en móvil
+        if (isMobile) {
+            showInitialMessage();
+            // Después de 3 segundos, cambiar mensaje si sigue en portrait
+            setTimeout(() => {
+                if (window.innerHeight > window.innerWidth) {
+                    loading.textContent = 'please rotate your screen';
+                }
+            }, 3000);
+        }
     </script>
 </body>
 </html> 
