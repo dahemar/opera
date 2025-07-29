@@ -367,12 +367,16 @@
                     loadingText.textContent = 'please rotate your screen';
                     adjustVideoSize(); // Ajustar rotación del vídeo
                 } else {
-                    // Landscape - activar sonido y abrir pantalla completa
+                    // Landscape - activar sonido y mostrar mensaje para pantalla completa
                     adjustVideoSize(); // Quitar rotación del vídeo
                     activateSound();
                     
-                    // Abrir pantalla completa automáticamente
-                    setTimeout(() => {
+                    // Mostrar mensaje para que el usuario toque para pantalla completa
+                    loadingSymbol.textContent = '𓏲';
+                    loadingText.textContent = 'tap for fullscreen';
+                    loading.style.cursor = 'pointer';
+                    document.body.style.cursor = 'pointer';
+                    document.body.onclick = () => {
                         if (video.requestFullscreen) {
                             video.requestFullscreen();
                         } else if (video.webkitRequestFullscreen) {
@@ -380,7 +384,11 @@
                         } else if (video.msRequestFullscreen) {
                             video.msRequestFullscreen();
                         }
-                    }, 500); // Pequeño delay para asegurar que el vídeo esté listo
+                        loading.style.display = 'none';
+                        document.body.style.cursor = 'default';
+                        document.body.onclick = null;
+                        showControlsTemporarily();
+                    };
                 }
             };
 
@@ -394,6 +402,11 @@
                 // Si se sale de pantalla completa y está en portrait, volver a rotar
                 if (window.innerHeight > window.innerWidth) {
                     adjustVideoSize();
+                    loadingSymbol.textContent = 'loading video...';
+                    loadingText.textContent = 'please rotate your screen';
+                } else {
+                    // Si está en landscape, mostrar controles
+                    showControlsTemporarily();
                 }
             }
         });
