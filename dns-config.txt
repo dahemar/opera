@@ -1,0 +1,20 @@
+# Configuración DNS para opera.earth
+# Registro CNAME para www.opera.earth
+
+# Registro CNAME
+# Nombre: www.opera.earth
+# Tipo: CNAME
+# Valor: opera.earth
+# TTL: 3600 (1 hora)
+
+www.opera.earth.    IN  CNAME   opera.earth.
+
+# Configuración adicional recomendada:
+# - TTL: 3600 segundos (1 hora)
+# - Prioridad: Normal
+# - Estado: Activo
+
+# Notas:
+# - El punto al final es importante en algunos sistemas DNS
+# - Este registro redirigirá www.opera.earth a opera.earth
+# - Asegúrate de que opera.earth tenga un registro A o AAAA configurado 
