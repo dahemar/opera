@@ -82,6 +82,17 @@
             font-size: 22px;
         }
 
+        /* Texto más pequeño en móvil */
+        @media (max-width: 768px) {
+            .loading-symbol {
+                font-size: 18px;
+            }
+
+            .loading-text {
+                font-size: 16px;
+            }
+        }
+
 
 
         .controls {
@@ -196,7 +207,8 @@
         // Función para mostrar mensaje inicial en móvil
         function showInitialMessage() {
             if (isMobile) {
-                loadingText.textContent = 'loading video... please rotate your screen';
+                loadingSymbol.textContent = 'loading video...';
+                loadingText.textContent = 'please rotate your screen';
             }
         }
 
@@ -324,8 +336,8 @@
         if (isMobile) {
             const handleOrientationChange = () => {
                 if (window.innerHeight > window.innerWidth) {
-                    // Portrait - mostrar mensaje de rotación
-                    loadingSymbol.textContent = '';
+                    // Portrait - mantener mensaje de carga
+                    loadingSymbol.textContent = 'loading video...';
                     loadingText.textContent = 'please rotate your screen';
                 } else {
                     // Landscape - activar sonido
@@ -407,13 +419,7 @@
             window.addEventListener('orientationchange', adjustVideoSize);
             window.addEventListener('resize', adjustVideoSize);
             
-            // Después de 3 segundos, cambiar mensaje si sigue en portrait
-            setTimeout(() => {
-                if (window.innerHeight > window.innerWidth) {
-                    loadingSymbol.textContent = '';
-                    loadingText.textContent = 'please rotate your screen';
-                }
-            }, 3000);
+
         }
     </script>
 </body>
