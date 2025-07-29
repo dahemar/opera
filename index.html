@@ -38,6 +38,32 @@
                 top: 0;
                 left: 0;
             }
+            
+            /* iOS Safari specific fixes */
+            @supports (-webkit-touch-callout: none) {
+                html, body {
+                    height: -webkit-fill-available;
+                    width: 100vw;
+                }
+                
+                .video-container {
+                    height: -webkit-fill-available;
+                    width: 100vw;
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    margin: 0;
+                    padding: 0;
+                }
+                
+                #video-player {
+                    height: -webkit-fill-available;
+                    width: 100vw;
+                    object-fit: fill;
+                    margin: 0;
+                    padding: 0;
+                }
+            }
         }
 
         .video-container {
@@ -395,8 +421,17 @@
                 const video = document.getElementById('video-player');
                 
                 // Usar las dimensiones reales de la pantalla
-                const screenWidth = window.innerWidth;
-                const screenHeight = window.innerHeight;
+                let screenWidth = window.innerWidth;
+                let screenHeight = window.innerHeight;
+                
+                // En iOS Safari, usar las dimensiones del viewport real
+                if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
+                    // Usar visual viewport para dimensiones más precisas
+                    if (window.visualViewport) {
+                        screenWidth = window.visualViewport.width;
+                        screenHeight = window.visualViewport.height;
+                    }
+                }
                 
                 // En móvil, hacer que el contenedor ocupe toda la pantalla
                 container.style.width = screenWidth + 'px';
@@ -425,6 +460,11 @@
             // Ajustar tamaño cuando cambie la orientación
             window.addEventListener('orientationchange', adjustVideoSize);
             window.addEventListener('resize', adjustVideoSize);
+            
+            // En iOS, también escuchar cambios del visualViewport
+            if (/iPad|iPhone|iPod/.test(navigator.userAgent) && window.visualViewport) {
+                window.visualViewport.addEventListener('resize', adjustVideoSize);
+            }
             
 
         }
