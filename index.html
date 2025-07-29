@@ -322,17 +322,31 @@
                 }
             }).catch(e => {
                 console.log('Error al reproducir automáticamente:', e);
-                loadingSymbol.textContent = '';
-                loadingText.textContent = 'click to play';
-                loading.style.cursor = 'pointer';
-                document.body.style.cursor = 'pointer';
-                document.body.onclick = () => {
-                    video.play();
-                    loading.style.display = 'none';
-                    document.body.style.cursor = 'default';
-                    document.body.onclick = null;
-                    showControlsTemporarily();
-                };
+                // En móvil, intentar reproducir silenciado automáticamente
+                if (isMobile) {
+                    video.muted = true;
+                    video.play().then(() => {
+                        loading.style.display = 'none';
+                        showControlsTemporarily();
+                    }).catch(error => {
+                        console.log('Error al reproducir silenciado:', error);
+                        loading.style.display = 'none';
+                        showControlsTemporarily();
+                    });
+                } else {
+                    // En desktop, mostrar mensaje de click
+                    loadingSymbol.textContent = '';
+                    loadingText.textContent = 'click to play';
+                    loading.style.cursor = 'pointer';
+                    document.body.style.cursor = 'pointer';
+                    document.body.onclick = () => {
+                        video.play();
+                        loading.style.display = 'none';
+                        document.body.style.cursor = 'default';
+                        document.body.onclick = null;
+                        showControlsTemporarily();
+                    };
+                }
             });
         };
 
@@ -479,6 +493,14 @@
                 video.style.width = screenWidth + 'px';
                 video.style.height = screenHeight + 'px';
                 
+                // Forzar que el contenedor ocupe toda la pantalla sin espacios
+                container.style.position = 'fixed';
+                container.style.top = '0';
+                container.style.left = '0';
+                container.style.margin = '0';
+                container.style.padding = '0';
+                container.style.zIndex = '1';
+                
                 // Solo aplicar rotación si está en portrait
                 if (screenHeight > screenWidth) {
                     container.style.transform = 'rotate(90deg)';
@@ -495,7 +517,11 @@
         // Inicializar mensaje en móvil
         if (isMobile) {
             showInitialMessage();
+            
+            // Ajustar dimensiones inmediatamente y después de un pequeño delay
             adjustVideoSize();
+            setTimeout(adjustVideoSize, 100);
+            setTimeout(adjustVideoSize, 500);
             
             // Ajustar tamaño cuando cambie la orientación
             window.addEventListener('orientationchange', adjustVideoSize);
@@ -505,8 +531,6 @@
             if (/iPad|iPhone|iPod/.test(navigator.userAgent) && window.visualViewport) {
                 window.visualViewport.addEventListener('resize', adjustVideoSize);
             }
-            
-
         }
     </script>
 </body>
