@@ -178,7 +178,8 @@
                 showControlsTemporarily();
             }).catch(error => {
                 console.log('Error al activar sonido:', error);
-                loading.textContent = '𓏲\nclick to hear the city';
+                loadingSymbol.textContent = '𓏲';
+                loadingText.textContent = 'click to hear the city';
                 loading.style.cursor = 'pointer';
                 document.body.style.cursor = 'pointer';
                 document.body.onclick = () => {
@@ -242,7 +243,8 @@
                 console.log('Video reproduciéndose silenciado');
                 // En móvil portrait, mostrar mensaje para activar sonido
                 if (isMobile && window.innerHeight > window.innerWidth) {
-                    loading.textContent = '𓏲\nclick to hear the city';
+                    loadingSymbol.textContent = '𓏲';
+                    loadingText.textContent = 'click to hear the city';
                     loading.style.cursor = 'pointer';
                     document.body.style.cursor = 'pointer';
                     document.body.onclick = activateSound;
@@ -252,7 +254,8 @@
                 }
             }).catch(e => {
                 console.log('Error al reproducir automáticamente:', e);
-                loading.textContent = 'click to play';
+                loadingSymbol.textContent = '';
+                loadingText.textContent = 'click to play';
                 loading.style.cursor = 'pointer';
                 document.body.style.cursor = 'pointer';
                 document.body.onclick = () => {
@@ -292,7 +295,8 @@
             const handleOrientationChange = () => {
                 if (window.innerHeight > window.innerWidth) {
                     // Portrait - mostrar mensaje de rotación
-                    loading.textContent = 'please rotate your screen';
+                    loadingSymbol.textContent = '';
+                    loadingText.textContent = 'please rotate your screen';
                 } else {
                     // Landscape - activar sonido
                     activateSound();
@@ -316,14 +320,16 @@
 
         // Manejar errores de carga
         video.addEventListener('error', () => {
-            loading.textContent = 'error loading video';
+            loadingSymbol.textContent = '';
+            loadingText.textContent = 'error loading video';
             console.error('Error loading video:', video.error);
         });
 
         // Timeout para mostrar mensaje si el video tarda en cargar (solo en desktop)
         setTimeout(() => {
             if (video.readyState < 2 && !isMobile) { // HAVE_CURRENT_DATA
-                loading.textContent = 'loading video... click to play when ready';
+                loadingSymbol.textContent = '';
+                loadingText.textContent = 'loading video... click to play when ready';
                 loading.style.cursor = 'pointer';
                 document.body.style.cursor = 'pointer';
                 document.body.onclick = () => {
@@ -344,7 +350,8 @@
             // Después de 3 segundos, cambiar mensaje si sigue en portrait
             setTimeout(() => {
                 if (window.innerHeight > window.innerWidth) {
-                    loading.textContent = 'please rotate your screen';
+                    loadingSymbol.textContent = '';
+                    loadingText.textContent = 'please rotate your screen';
                 }
             }, 3000);
         }
