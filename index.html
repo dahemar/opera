@@ -336,11 +336,13 @@
         if (isMobile) {
             const handleOrientationChange = () => {
                 if (window.innerHeight > window.innerWidth) {
-                    // Portrait - mantener mensaje de carga
+                    // Portrait - mantener mensaje de carga y rotar vídeo
                     loadingSymbol.textContent = 'loading video...';
                     loadingText.textContent = 'please rotate your screen';
+                    adjustVideoSize(); // Ajustar rotación del vídeo
                 } else {
-                    // Landscape - activar sonido
+                    // Landscape - activar sonido y quitar rotación del vídeo
+                    adjustVideoSize(); // Quitar rotación del vídeo
                     activateSound();
                 }
             };
@@ -402,11 +404,16 @@
                 video.style.width = screenWidth + 'px';
                 video.style.height = screenHeight + 'px';
                 
-                // Aplicar la rotación sin offset
-                container.style.transform = 'rotate(90deg)';
+                // Solo aplicar rotación si está en portrait
+                if (screenHeight > screenWidth) {
+                    container.style.transform = 'rotate(90deg)';
+                } else {
+                    container.style.transform = 'none';
+                }
                 
                 console.log('Screen dimensions:', screenWidth, 'x', screenHeight);
                 console.log('Container dimensions:', screenWidth, 'x', screenHeight);
+                console.log('Orientation:', screenHeight > screenWidth ? 'portrait' : 'landscape');
             }
         }
 
