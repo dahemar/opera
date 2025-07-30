@@ -213,17 +213,31 @@
 
 
 
-        // Función para mostrar mensaje inicial en móvil
-        function showInitialMessage() {
-            if (isMobile) {
-                loadingSymbol.textContent = '𓏲';
-                loadingText.textContent = 'click to hear the city';
-                loading.style.cursor = 'pointer';
-                document.body.style.cursor = 'pointer';
-                document.body.onclick = () => {
-                    video.muted = false;
-                    video.play().then(() => {
-                        // Abrir pantalla completa automáticamente
+        // Función para activar sonido
+        function activateSound() {
+            video.muted = false;
+            video.play().then(() => {
+                if (isMobile) {
+                    // En móvil, abrir pantalla completa automáticamente
+                    if (video.requestFullscreen) {
+                        video.requestFullscreen();
+                    } else if (video.webkitRequestFullscreen) {
+                        video.webkitRequestFullscreen();
+                    } else if (video.msRequestFullscreen) {
+                        video.msRequestFullscreen();
+                    }
+                }
+                loading.style.display = 'none';
+                document.body.style.cursor = 'default';
+                document.body.onclick = null;
+                showControlsTemporarily();
+            }).catch(error => {
+                console.log('Error al activar sonido:', error);
+                // Si falla, intentar reproducir silenciado
+                video.muted = true;
+                video.play().then(() => {
+                    if (isMobile) {
+                        // En móvil, abrir pantalla completa automáticamente
                         if (video.requestFullscreen) {
                             video.requestFullscreen();
                         } else if (video.webkitRequestFullscreen) {
@@ -231,29 +245,23 @@
                         } else if (video.msRequestFullscreen) {
                             video.msRequestFullscreen();
                         }
-                        loading.style.display = 'none';
-                        document.body.style.cursor = 'default';
-                        document.body.onclick = null;
-                        showControlsTemporarily();
-                    }).catch(error => {
-                        console.log('Error al activar sonido:', error);
-                        // Si falla, intentar reproducir silenciado y abrir pantalla completa
-                        video.muted = true;
-                        video.play().then(() => {
-                            if (video.requestFullscreen) {
-                                video.requestFullscreen();
-                            } else if (video.webkitRequestFullscreen) {
-                                video.webkitRequestFullscreen();
-                            } else if (video.msRequestFullscreen) {
-                                video.msRequestFullscreen();
-                            }
-                            loading.style.display = 'none';
-                            document.body.style.cursor = 'default';
-                            document.body.onclick = null;
-                            showControlsTemporarily();
-                        });
-                    });
-                };
+                    }
+                    loading.style.display = 'none';
+                    document.body.style.cursor = 'default';
+                    document.body.onclick = null;
+                    showControlsTemporarily();
+                });
+            });
+        }
+
+        // Función para mostrar mensaje inicial en móvil
+        function showInitialMessage() {
+            if (isMobile) {
+                loadingSymbol.textContent = '𓏲';
+                loadingText.textContent = 'click to hear the city';
+                loading.style.cursor = 'pointer';
+                document.body.style.cursor = 'pointer';
+                document.body.onclick = activateSound;
             }
         }
 
@@ -337,13 +345,7 @@
                     loadingText.textContent = 'click to hear the city';
                     loading.style.cursor = 'pointer';
                     document.body.style.cursor = 'pointer';
-                    document.body.onclick = () => {
-                        video.play();
-                        loading.style.display = 'none';
-                        document.body.style.cursor = 'default';
-                        document.body.onclick = null;
-                        showControlsTemporarily();
-                    };
+                    document.body.onclick = activateSound;
                 }
             });
         };
