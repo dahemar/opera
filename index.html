@@ -159,49 +159,35 @@
             video.muted = false;
             video.play().then(() => {
                 if (isMobile) {
-                    // En móvil, expandir el vídeo como YouTube
-                    const container = document.querySelector('.video-container');
-                    container.style.position = 'fixed';
-                    container.style.top = '0';
-                    container.style.left = '0';
-                    container.style.width = '100vw';
-                    container.style.height = '100vh';
-                    container.style.zIndex = '9999';
-                    container.style.backgroundColor = '#000';
-                    
-                    video.style.width = '100%';
-                    video.style.height = '100%';
-                    video.style.objectFit = 'contain';
+                    // Entrar en fullscreen tras clic del usuario (solo en móvil)
+                    if (video.requestFullscreen) {
+                        video.requestFullscreen();
+                    } else if (video.webkitEnterFullscreen) {  // Safari iOS
+                        video.webkitEnterFullscreen();
+                    }
                 }
+
                 loading.style.display = 'none';
                 document.body.style.cursor = 'default';
                 document.body.onclick = null;
                 showControlsTemporarily();
             }).catch(error => {
-                console.log('Error al activar sonido:', error);
-                // Si falla, intentar reproducir silenciado
-                video.muted = true;
-                video.play().then(() => {
-                    if (isMobile) {
-                        // En móvil, expandir el vídeo como YouTube
-                        const container = document.querySelector('.video-container');
-                        container.style.position = 'fixed';
-                        container.style.top = '0';
-                        container.style.left = '0';
-                        container.style.width = '100vw';
-                        container.style.height = '100vh';
-                        container.style.zIndex = '9999';
-                        container.style.backgroundColor = '#000';
-                        
-                        video.style.width = '100%';
-                        video.style.height = '100%';
-                        video.style.objectFit = 'contain';
+                console.log('error activating sound:', error);
+                // fallback: seguir silenciado y forzar fullscreen igual (solo en móvil)
+                if (isMobile) {
+                    if (video.requestFullscreen) {
+                        video.requestFullscreen();
+                    } else if (video.webkitEnterFullscreen) {
+                        video.webkitEnterFullscreen();
                     }
-                    loading.style.display = 'none';
-                    document.body.style.cursor = 'default';
-                    document.body.onclick = null;
-                    showControlsTemporarily();
-                });
+                }
+
+                video.muted = true;
+                video.play();
+                loading.style.display = 'none';
+                document.body.style.cursor = 'default';
+                document.body.onclick = null;
+                showControlsTemporarily();
             });
         }
 
@@ -260,7 +246,7 @@
                 document.body.style.cursor = 'pointer';
                 document.body.onclick = activateSound;
             }).catch(e => {
-                console.log('Error al reproducir automáticamente:', e);
+                console.log('error auto-playing:', e);
                 // Mostrar mensaje de click para activar sonido
                 loadingSymbol.textContent = '𓏲';
                 loadingText.textContent = 'click to hear the city';
@@ -294,7 +280,7 @@
         video.addEventListener('error', () => {
             loadingSymbol.textContent = '';
             loadingText.textContent = 'error loading video';
-            console.error('Error loading video:', video.error);
+            console.error('error loading video:', video.error);
         });
     </script>
 </body>
