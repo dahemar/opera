@@ -26,46 +26,6 @@
             font-family: Arial, sans-serif;
         }
 
-        /* Asegurar que el body ocupe toda la pantalla en móvil */
-        @media (max-width: 768px) {
-            html, body {
-                width: 100vw;
-                height: 100vh;
-                overflow: hidden;
-                margin: 0;
-                padding: 0;
-                position: fixed;
-                top: 0;
-                left: 0;
-            }
-            
-            /* iOS Safari specific fixes */
-            @supports (-webkit-touch-callout: none) {
-                html, body {
-                    height: -webkit-fill-available;
-                    width: 100vw;
-                }
-                
-                .video-container {
-                    height: -webkit-fill-available;
-                    width: 100vw;
-                    position: fixed;
-                    top: 0;
-                    left: 0;
-                    margin: 0;
-                    padding: 0;
-                }
-                
-                #video-player {
-                    height: -webkit-fill-available;
-                    width: 100vw;
-                    object-fit: fill;
-                    margin: 0;
-                    padding: 0;
-                }
-            }
-        }
-
         .video-container {
             position: fixed;
             top: 0;
@@ -108,19 +68,6 @@
             font-size: 22px;
         }
 
-        /* Texto más pequeño en móvil */
-        @media (max-width: 768px) {
-            .loading-symbol {
-                font-size: 18px;
-            }
-
-            .loading-text {
-                font-size: 16px;
-            }
-        }
-
-
-
         .controls {
             position: fixed;
             bottom: 20px;
@@ -153,12 +100,6 @@
 
         /* Mobile optimizations */
         @media (max-width: 768px) {
-            /* iOS Safari specific */
-            @supports (-webkit-touch-callout: none) {
-                html, body {
-                    height: -webkit-fill-available;
-                }
-            }
             .controls {
                 bottom: 10px;
                 gap: 5px;
@@ -169,11 +110,13 @@
                 font-size: 12px;
             }
 
+            /* Texto más pequeño en móvil */
+            .loading-symbol {
+                font-size: 18px;
+            }
 
-
-            /* Rotar texto en móvil */
-            .loading {
-                transform: translate(-50%, -50%) rotate(90deg);
+            .loading-text {
+                font-size: 16px;
             }
         }
 
@@ -210,8 +153,6 @@
         const controls = document.getElementById('controls');
         let controlsTimeout;
         let isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-
-
 
         // Función para activar sonido
         function activateSound() {
@@ -253,19 +194,6 @@
                 });
             });
         }
-
-        // Función para mostrar mensaje inicial en móvil
-        function showInitialMessage() {
-            if (isMobile) {
-                loadingSymbol.textContent = '𓏲';
-                loadingText.textContent = 'click to hear the city';
-                loading.style.cursor = 'pointer';
-                document.body.style.cursor = 'pointer';
-                document.body.onclick = activateSound;
-            }
-        }
-
-
 
         // Función para pantalla completa
         function toggleFullscreen() {
@@ -315,42 +243,22 @@
             video.muted = true;
             video.play().then(() => {
                 console.log('Video reproduciéndose silenciado');
-                // En móvil portrait, mostrar mensaje para activar sonido
-                if (isMobile && window.innerHeight > window.innerWidth) {
-                    loadingSymbol.textContent = '𓏲';
-                    loadingText.textContent = 'click to hear the city';
-                    loading.style.cursor = 'pointer';
-                    document.body.style.cursor = 'pointer';
-                    document.body.onclick = activateSound;
-                } else {
-                    // En desktop o móvil landscape, activar sonido automáticamente
-                    activateSound();
-                }
+                // En ambos casos, mostrar mensaje para activar sonido
+                loadingSymbol.textContent = '𓏲';
+                loadingText.textContent = 'click to hear the city';
+                loading.style.cursor = 'pointer';
+                document.body.style.cursor = 'pointer';
+                document.body.onclick = activateSound;
             }).catch(e => {
                 console.log('Error al reproducir automáticamente:', e);
-                // En móvil, intentar reproducir silenciado automáticamente
-                if (isMobile) {
-                    video.muted = true;
-                    video.play().then(() => {
-                        loading.style.display = 'none';
-                        showControlsTemporarily();
-                    }).catch(error => {
-                        console.log('Error al reproducir silenciado:', error);
-                        loading.style.display = 'none';
-                        showControlsTemporarily();
-                    });
-                } else {
-                    // En desktop, mostrar mensaje de click
-                    loadingSymbol.textContent = '';
-                    loadingText.textContent = 'click to hear the city';
-                    loading.style.cursor = 'pointer';
-                    document.body.style.cursor = 'pointer';
-                    document.body.onclick = activateSound;
-                }
+                // Mostrar mensaje de click para activar sonido
+                loadingSymbol.textContent = '𓏲';
+                loadingText.textContent = 'click to hear the city';
+                loading.style.cursor = 'pointer';
+                document.body.style.cursor = 'pointer';
+                document.body.onclick = activateSound;
             });
         };
-
-
 
         video.addEventListener('ended', () => {
             // Repetir automáticamente
@@ -372,105 +280,12 @@
             showControlsTemporarily();
         });
 
-
-
-        // Detectar cambios de pantalla completa
-        document.addEventListener('fullscreenchange', () => {
-            if (!document.fullscreenElement && isMobile) {
-                // Si se sale de pantalla completa y está en portrait, volver a rotar
-                if (window.innerHeight > window.innerWidth) {
-                    adjustVideoSize();
-                    loadingSymbol.textContent = '𓏲';
-                    loadingText.textContent = 'loading video...\nplease rotate your screen';
-                } else {
-                    // Si está en landscape, mostrar controles
-                    showControlsTemporarily();
-                }
-            }
-        });
-
-        // Intentar pantalla completa automáticamente en móvil
-        if (isMobile) {
-            document.addEventListener('touchstart', () => {
-                if (video.requestFullscreen) {
-                    video.requestFullscreen();
-                } else if (video.webkitRequestFullscreen) {
-                    video.webkitRequestFullscreen();
-                }
-            }, { once: true });
-        }
-
         // Manejar errores de carga
         video.addEventListener('error', () => {
             loadingSymbol.textContent = '';
             loadingText.textContent = 'error loading video';
             console.error('Error loading video:', video.error);
         });
-
-        // Timeout para mostrar mensaje si el video tarda en cargar (solo en desktop)
-        setTimeout(() => {
-            if (video.readyState < 2 && !isMobile) { // HAVE_CURRENT_DATA
-                loadingSymbol.textContent = '';
-                loadingText.textContent = 'loading video... click to play when ready';
-                loading.style.cursor = 'pointer';
-                document.body.style.cursor = 'pointer';
-                document.body.onclick = () => {
-                    if (video.readyState >= 2) {
-                        autoPlay();
-                        document.body.style.cursor = 'default';
-                        document.body.onclick = null;
-                    }
-                };
-            }
-        }, 5000);
-
-
-
-        // Función para ajustar dimensiones del vídeo en móvil
-        function adjustVideoSize() {
-            if (isMobile) {
-                const container = document.querySelector('.video-container');
-                const video = document.getElementById('video-player');
-                
-                // Usar las dimensiones reales de la pantalla
-                let screenWidth = window.innerWidth;
-                let screenHeight = window.innerHeight;
-                
-                // En iOS Safari, usar las dimensiones del viewport real
-                if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
-                    // Usar visual viewport para dimensiones más precisas
-                    if (window.visualViewport) {
-                        screenWidth = window.visualViewport.width;
-                        screenHeight = window.visualViewport.height;
-                    }
-                }
-                
-                // En móvil, hacer que el contenedor ocupe toda la pantalla
-                container.style.width = screenWidth + 'px';
-                container.style.height = screenHeight + 'px';
-                video.style.width = screenWidth + 'px';
-                video.style.height = screenHeight + 'px';
-                
-                // Forzar que el contenedor ocupe toda la pantalla sin espacios
-                container.style.position = 'fixed';
-                container.style.top = '0';
-                container.style.left = '0';
-                container.style.margin = '0';
-                container.style.padding = '0';
-                container.style.zIndex = '1';
-                
-                console.log('Screen dimensions:', screenWidth, 'x', screenHeight);
-                console.log('Container dimensions:', screenWidth, 'x', screenHeight);
-            }
-        }
-
-        // Inicializar mensaje en móvil
-        if (isMobile) {
-            showInitialMessage();
-            
-            // Ajustar dimensiones inmediatamente
-            adjustVideoSize();
-        }
     </script>
 </body>
 </html> 
