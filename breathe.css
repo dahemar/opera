@@ -15,9 +15,4 @@
     font-family: 'Junicode', serif;
 }
 
-/* Rotación del texto en móvil */
-@media (max-width: 768px) {
-    .loading {
-        transform: translate(-50%, -50%) rotate(90deg);
-    }
-} 
+ 

@@ -169,24 +169,7 @@
                 font-size: 12px;
             }
 
-            /* Forzar orientación horizontal en móvil */
-            .video-container {
-                top: 0;
-                left: 0;
-                position: fixed;
-                margin: 0;
-                padding: 0;
-                display: block;
-                justify-content: initial;
-                align-items: initial;
-            }
 
-            #video-player {
-                object-fit: fill;
-                margin: 0;
-                padding: 0;
-                display: block;
-            }
 
             /* Rotar texto en móvil */
             .loading {
@@ -234,32 +217,47 @@
         function showInitialMessage() {
             if (isMobile) {
                 loadingSymbol.textContent = '𓏲';
-                loadingText.textContent = 'loading video...\nplease rotate your screen';
-            }
-        }
-
-        // Función para activar sonido y ocultar loading
-        function activateSound() {
-            video.muted = false;
-            video.play().then(() => {
-                loading.style.display = 'none';
-                showControlsTemporarily();
-            }).catch(error => {
-                console.log('Error al activar sonido:', error);
-                loadingSymbol.textContent = '𓏲';
                 loadingText.textContent = 'click to hear the city';
                 loading.style.cursor = 'pointer';
                 document.body.style.cursor = 'pointer';
                 document.body.onclick = () => {
                     video.muted = false;
-                    video.play();
-                    loading.style.display = 'none';
-                    document.body.style.cursor = 'default';
-                    document.body.onclick = null;
-                    showControlsTemporarily();
+                    video.play().then(() => {
+                        // Abrir pantalla completa automáticamente
+                        if (video.requestFullscreen) {
+                            video.requestFullscreen();
+                        } else if (video.webkitRequestFullscreen) {
+                            video.webkitRequestFullscreen();
+                        } else if (video.msRequestFullscreen) {
+                            video.msRequestFullscreen();
+                        }
+                        loading.style.display = 'none';
+                        document.body.style.cursor = 'default';
+                        document.body.onclick = null;
+                        showControlsTemporarily();
+                    }).catch(error => {
+                        console.log('Error al activar sonido:', error);
+                        // Si falla, intentar reproducir silenciado y abrir pantalla completa
+                        video.muted = true;
+                        video.play().then(() => {
+                            if (video.requestFullscreen) {
+                                video.requestFullscreen();
+                            } else if (video.webkitRequestFullscreen) {
+                                video.webkitRequestFullscreen();
+                            } else if (video.msRequestFullscreen) {
+                                video.msRequestFullscreen();
+                            }
+                            loading.style.display = 'none';
+                            document.body.style.cursor = 'default';
+                            document.body.onclick = null;
+                            showControlsTemporarily();
+                        });
+                    });
                 };
-            });
+            }
         }
+
+
 
         // Función para pantalla completa
         function toggleFullscreen() {
@@ -336,7 +334,7 @@
                 } else {
                     // En desktop, mostrar mensaje de click
                     loadingSymbol.textContent = '';
-                    loadingText.textContent = 'click to play';
+                    loadingText.textContent = 'click to hear the city';
                     loading.style.cursor = 'pointer';
                     document.body.style.cursor = 'pointer';
                     document.body.onclick = () => {
@@ -372,43 +370,7 @@
             showControlsTemporarily();
         });
 
-        // Detectar cambios de orientación en móvil
-        if (isMobile) {
-            const handleOrientationChange = () => {
-                if (window.innerHeight > window.innerWidth) {
-                    // Portrait - mantener mensaje de carga y rotar vídeo
-                    loadingSymbol.textContent = '𓏲';
-                    loadingText.textContent = 'loading video...\nplease rotate your screen';
-                    adjustVideoSize(); // Ajustar rotación del vídeo
-                } else {
-                    // Landscape - activar sonido y mostrar mensaje para pantalla completa
-                    adjustVideoSize(); // Quitar rotación del vídeo
-                    activateSound();
-                    
-                    // Mostrar mensaje para que el usuario toque para pantalla completa
-                    loadingSymbol.textContent = '𓏲';
-                    loadingText.textContent = 'tap for fullscreen';
-                    loading.style.cursor = 'pointer';
-                    document.body.style.cursor = 'pointer';
-                    document.body.onclick = () => {
-                        if (video.requestFullscreen) {
-                            video.requestFullscreen();
-                        } else if (video.webkitRequestFullscreen) {
-                            video.webkitRequestFullscreen();
-                        } else if (video.msRequestFullscreen) {
-                            video.msRequestFullscreen();
-                        }
-                        loading.style.display = 'none';
-                        document.body.style.cursor = 'default';
-                        document.body.onclick = null;
-                        showControlsTemporarily();
-                    };
-                }
-            };
 
-            window.addEventListener('orientationchange', handleOrientationChange);
-            window.addEventListener('resize', handleOrientationChange);
-        }
 
         // Detectar cambios de pantalla completa
         document.addEventListener('fullscreenchange', () => {
@@ -468,12 +430,6 @@
                 const container = document.querySelector('.video-container');
                 const video = document.getElementById('video-player');
                 
-                // Si está en pantalla completa, no hacer rotación
-                if (document.fullscreenElement) {
-                    container.style.transform = 'none';
-                    return;
-                }
-                
                 // Usar las dimensiones reales de la pantalla
                 let screenWidth = window.innerWidth;
                 let screenHeight = window.innerHeight;
@@ -501,16 +457,8 @@
                 container.style.padding = '0';
                 container.style.zIndex = '1';
                 
-                // Solo aplicar rotación si está en portrait
-                if (screenHeight > screenWidth) {
-                    container.style.transform = 'rotate(90deg)';
-                } else {
-                    container.style.transform = 'none';
-                }
-                
                 console.log('Screen dimensions:', screenWidth, 'x', screenHeight);
                 console.log('Container dimensions:', screenWidth, 'x', screenHeight);
-                console.log('Orientation:', screenHeight > screenWidth ? 'portrait' : 'landscape');
             }
         }
 
@@ -518,19 +466,8 @@
         if (isMobile) {
             showInitialMessage();
             
-            // Ajustar dimensiones inmediatamente y después de un pequeño delay
+            // Ajustar dimensiones inmediatamente
             adjustVideoSize();
-            setTimeout(adjustVideoSize, 100);
-            setTimeout(adjustVideoSize, 500);
-            
-            // Ajustar tamaño cuando cambie la orientación
-            window.addEventListener('orientationchange', adjustVideoSize);
-            window.addEventListener('resize', adjustVideoSize);
-            
-            // En iOS, también escuchar cambios del visualViewport
-            if (/iPad|iPhone|iPod/.test(navigator.userAgent) && window.visualViewport) {
-                window.visualViewport.addEventListener('resize', adjustVideoSize);
-            }
         }
     </script>
 </body>
