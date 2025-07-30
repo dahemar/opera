@@ -159,14 +159,18 @@
             video.muted = false;
             video.play().then(() => {
                 if (isMobile) {
-                    // En móvil, abrir pantalla completa automáticamente
-                    if (video.requestFullscreen) {
-                        video.requestFullscreen();
-                    } else if (video.webkitRequestFullscreen) {
-                        video.webkitRequestFullscreen();
-                    } else if (video.msRequestFullscreen) {
-                        video.msRequestFullscreen();
-                    }
+                    // En móvil, expandir el vídeo como YouTube
+                    video.style.position = 'fixed';
+                    video.style.top = '0';
+                    video.style.left = '0';
+                    video.style.width = '100vw';
+                    video.style.height = '100vh';
+                    video.style.zIndex = '9999';
+                    video.style.objectFit = 'contain';
+                    video.style.backgroundColor = '#000';
+                    
+                    // Ocultar el contenedor original
+                    document.querySelector('.video-container').style.display = 'none';
                 }
                 loading.style.display = 'none';
                 document.body.style.cursor = 'default';
@@ -178,14 +182,18 @@
                 video.muted = true;
                 video.play().then(() => {
                     if (isMobile) {
-                        // En móvil, abrir pantalla completa automáticamente
-                        if (video.requestFullscreen) {
-                            video.requestFullscreen();
-                        } else if (video.webkitRequestFullscreen) {
-                            video.webkitRequestFullscreen();
-                        } else if (video.msRequestFullscreen) {
-                            video.msRequestFullscreen();
-                        }
+                        // En móvil, expandir el vídeo como YouTube
+                        video.style.position = 'fixed';
+                        video.style.top = '0';
+                        video.style.left = '0';
+                        video.style.width = '100vw';
+                        video.style.height = '100vh';
+                        video.style.zIndex = '9999';
+                        video.style.objectFit = 'contain';
+                        video.style.backgroundColor = '#000';
+                        
+                        // Ocultar el contenedor original
+                        document.querySelector('.video-container').style.display = 'none';
                     }
                     loading.style.display = 'none';
                     document.body.style.cursor = 'default';
