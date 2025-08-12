@@ -192,28 +192,38 @@
             if (window.visualViewport) window.visualViewport.addEventListener('resize', handler);
         }
 
-        // Función para activar sonido (desktop: solo sonido; móvil: expandir a pantalla completa en página)
+        // Función para activar sonido (desktop: solo sonido; móvil: pantalla completa nativa)
         function activateSound() {
             // limpiar handlers y UI
             document.body.onclick = null;
             document.body.style.cursor = 'default';
             loading.style.display = 'none';
 
-            if (isMobile) {
-                isExpanded = true;
-                expandToViewport();
-                attachViewportHandlers();
-            }
+            const enterFullscreenIfMobile = async () => {
+                if (!isMobile) return;
+                try {
+                    if (video.requestFullscreen) {
+                        await video.requestFullscreen();
+                    } else if (video.webkitEnterFullscreen) { // iOS Safari
+                        video.webkitEnterFullscreen();
+                    } else if (video.webkitRequestFullscreen) {
+                        await video.webkitRequestFullscreen();
+                    } else {
+                        throw new Error('no fullscreen api');
+                    }
+                } catch (e) {
+                    // fallback: expansión CSS
+                    isExpanded = true;
+                    expandToViewport();
+                    attachViewportHandlers();
+                }
+            };
 
             // activar sonido y reproducir
             video.muted = false;
-            video.play().then(() => {
-                showControlsTemporarily();
-            }).catch(err => {
-                console.log('error activating sound:', err);
-                // fallback: reproducir en mute igualmente
-                video.muted = true;
-                video.play().catch(() => {});
+            video.play().catch(() => {});
+
+            enterFullscreenIfMobile().finally(() => {
                 showControlsTemporarily();
             });
         }
