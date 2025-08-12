@@ -134,6 +134,7 @@
     
     <div class="video-container">
         <video id="video-player" preload="auto" autoplay muted playsinline>
+            <source id="mp4-source" src="desktop.mp4" type="video/mp4" />
             your browser doesn't support video playback.
         </video>
     </div>
@@ -262,8 +263,9 @@
             video.muted = true;
             video.preload = 'auto';
             
-            // Asignar fuente y manejar eventos
-            video.src = src;
+            // Asignar fuente (source element) y manejar eventos
+            const source = document.getElementById('mp4-source');
+            source.src = src;
             video.load();
             
             // Esperar a que se cargue el video antes de intentar reproducir
