@@ -253,9 +253,10 @@
 
         // Reproducción inicial simplificada
         window.onload = () => {
-            // Elegir fuente según dispositivo
-            const src = isMobile ? 'mobile.mp4' : 'desktop.mp4';
-            console.log('Loading video source:', src, 'for device:', isMobile ? 'mobile' : 'desktop');
+            // Elegir fuente según dispositivo (con bust de caché)
+            const base = isMobile ? 'mobile.mp4' : 'desktop.mp4';
+            const src = `${base}?v=${Date.now()}`;
+            console.log('Loading video source:', base, 'for device:', isMobile ? 'mobile' : 'desktop');
             
             // Configurar el video antes de asignar src
             video.muted = true;
@@ -263,6 +264,7 @@
             
             // Asignar fuente y manejar eventos
             video.src = src;
+            video.load();
             
             // Esperar a que se cargue el video antes de intentar reproducir
             video.addEventListener('loadeddata', () => {
@@ -288,8 +290,9 @@
             
             // Manejar errores de carga
             video.addEventListener('error', (e) => {
-                console.error('Video loading error:', e);
-                console.error('Video error details:', video.error);
+                const err = video.error;
+                console.error('Video loading error event:', e);
+                console.error('Video error details:', err, err ? { code: err.code, message: err.message } : null);
                 loadingSymbol.textContent = '';
                 loadingText.textContent = 'error loading video';
             });
